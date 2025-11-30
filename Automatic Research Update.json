@@ -1,0 +1,825 @@
+{
+  "name": "Automatic Research Update",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Subscriber Yourself",
+        "formDescription": "This service allows you to get scientific updates about your field on WhatsApp and Gmail",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Pronoun",
+              "placeholder": "Tape your pronoun",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Name",
+              "placeholder": "Tape you name.",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "=Interest field",
+              "fieldType": "textarea",
+              "placeholder": "Describe you field of interest in natural words.",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "WhatsApp Phone",
+              "placeholder": "Get  notified by WhatsApp",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Email",
+              "placeholder": "Get Notified by  email (only Gmail is supported for now).",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.3,
+      "position": [
+        -1840,
+        -240
+      ],
+      "id": "8c09aa62-72a2-460a-b95e-0a36b4d1d6a4",
+      "name": "On form submission",
+      "webhookId": "c36de4f9-d3f8-42d6-ac4d-b5722aa07bc2"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json }}",
+        "messages": {
+          "messageValues": [
+            {
+              "type": "HumanMessagePromptTemplate",
+              "message": "={{\n  'You are an assistant that generates search keywords for scientific papers. ' +\n  'The user is called \"' + $json.name + '\". ' +\n  'Here is their description of interests:\\n\\n' +\n  $json['Interest field'] +\n  '\\n\\nExtract 5–15 concise English keywords or short key phrases, ' +\n  'purely for filtering scientific papers. ' +\n  'Reply with ONLY the keywords, separated by commas, with no extra text.'\n}}"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        -1584,
+        0
+      ],
+      "id": "0ae66cce-b773-432f-aa83-b3b269bec43b",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": "groq/compound-mini",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -1584,
+        208
+      ],
+      "id": "87cbc676-6e83-46e2-9e94-75a8e759d16d",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "MgQQqiWEPhcmP7qF",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "spreadsheet",
+        "title": "Users Preferences",
+        "sheetsUi": {
+          "sheetValues": [
+            {
+              "title": "sheet1"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -768,
+        -416
+      ],
+      "id": "0fa6cfb0-f7d2-4e8a-b87f-3a9bedf0545d",
+      "name": "Create spreadsheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "2Kve1LNHkJsZdhhR",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "12IWmwmJwxb946kpJUlt7OWAXHS5KA1kOHJSo2Elt76Y",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "=sheet1",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Email": "={{$node[\"On form submission\"].json.Email}}",
+            "text": "={{$node[\"Basic LLM Chain\"].json.text}}",
+            "Pronoun": "={{$node[\"On form submission\"].json.Pronoun}}",
+            "Name": "={{$node[\"On form submission\"].json.Name}}",
+            "Interest field": "={{$node[\"On form submission\"].json['Interest field']}}",
+            "WhatsApp Phone": "={{$node[\"On form submission\"].json['WhatsApp Phone']}}"
+          },
+          "matchingColumns": [
+            "Email"
+          ],
+          "schema": [
+            {
+              "id": "text",
+              "displayName": "text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Pronoun",
+              "displayName": "Pronoun",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Interest field",
+              "displayName": "Interest field",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "WhatsApp Phone",
+              "displayName": "WhatsApp Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "submittedAt",
+              "displayName": "submittedAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "formMode",
+              "displayName": "formMode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -1088,
+        0
+      ],
+      "id": "615e5d8d-fc5b-4340-b937-361e5b13ed3e",
+      "name": "Append or update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "2Kve1LNHkJsZdhhR",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "queryString": "Users Preferences",
+        "filter": {},
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -1568,
+        -432
+      ],
+      "id": "587fc97d-0294-416f-a6bc-75961d9bc8ad",
+      "name": "Search files and folders",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "eo6H6rGuWecFGjOD",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "0bc257d6-4ca3-4cbb-b25e-d86bc3956670",
+              "leftValue": "={{ Object.keys($json).length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1200,
+        -432
+      ],
+      "id": "dd8fb134-1677-4b58-b656-a56cadbda99c",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -848,
+        624
+      ],
+      "id": "612f6cdd-d620-4fc4-9369-7c412ea5bdda",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "12IWmwmJwxb946kpJUlt7OWAXHS5KA1kOHJSo2Elt76Y",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "sheet1",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -400,
+        624
+      ],
+      "id": "9f76e0ea-a1bd-48a7-a646-9be17c95e03e",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "2Kve1LNHkJsZdhhR",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{\n  'https://api.semanticscholar.org/graph/v1/paper/search' +\n  '?query=' + encodeURIComponent($json.text || '') +\n  '&limit=5' +\n  '&fields=title,url,venue,year,openAccessPdf'\n}}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -32,
+        624
+      ],
+      "id": "dba6d5bb-90e5-412d-9661-486340c87481",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.myNewField = 1;\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        368,
+        624
+      ],
+      "id": "f186b9dd-0bc2-4b05-8bd3-af8bc39ff664",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "chatId": "0",
+        "text": "hi",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        768,
+        752
+      ],
+      "id": "51ee90fc-8ce9-40ab-afac-2b6bed74ccf6",
+      "name": "Send a text message",
+      "webhookId": "f9bae771-c14c-4c4d-988e-63c5927eaf3c",
+      "credentials": {
+        "telegramApi": {
+          "id": "r87HIjwHzp3D088A",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "completion",
+        "completionTitle": "Well done",
+        "completionMessage": "=<p>Thanks! One more step:</p>\n<p>Please open this link and press \"Start\" to receive alerts on Telegram:</p>\n<p><a href=\"https://t.me/chemstest213bot\">https://t.me/chemstest213bot</a></p>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 2.3,
+      "position": [
+        -1312,
+        -240
+      ],
+      "id": "cfc04973-5f0d-408e-9d8f-3ac4ef17f4c6",
+      "name": "Form",
+      "webhookId": "3313b4ad-0c40-45e1-9aff-39181672cf67"
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -368,
+        -96
+      ],
+      "id": "6765a433-b201-417b-add3-65e8e044867d",
+      "name": "Telegram Trigger",
+      "webhookId": "ad513e6e-65a0-465a-984a-78f24763eeb6",
+      "credentials": {
+        "telegramApi": {
+          "id": "r87HIjwHzp3D088A",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "de3672a5-5288-46a7-b3b2-178c9c1c9fef",
+              "name": "",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -160,
+        -96
+      ],
+      "id": "3b51d0e7-1f39-4ade-a7a2-a06542005022",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        96,
+        -96
+      ],
+      "id": "de2a7434-fc72-46c7-83df-8bdb4611383e",
+      "name": "Get row(s) in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "2Kve1LNHkJsZdhhR",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "a1602ea9-bd9e-4d05-b5e0-972c092ec0d1",
+              "leftValue": "",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        304,
+        -96
+      ],
+      "id": "263b5af7-d077-48ae-984f-c72bbf8d28da",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        528,
+        -272
+      ],
+      "id": "3e94365b-a726-41b5-904e-f34df3e3f642",
+      "name": "Update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "2Kve1LNHkJsZdhhR",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "redirect",
+        "redirectURL": "http://localhost:5678/form-test/c36de4f9-d3f8-42d6-ac4d-b5722aa07bc2",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        544,
+        48
+      ],
+      "id": "bc78a324-3bc7-4010-9f0c-de1f09214b46",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        752,
+        528
+      ],
+      "id": "349db5ed-be70-4db1-956d-60f7d02cd74e",
+      "name": "Send a message",
+      "webhookId": "05969de7-a949-493f-b4a4-6e50907320e7"
+    },
+    {
+      "parameters": {
+        "content": "## Form submisssion, and user information storage\n### In this workflow, we provide the user a form to fill out his information. We then, check out the  google sheet, if not existing we create it.\n### All user information gets stored, if exists it get updated.",
+        "height": 912,
+        "width": 1504,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1968,
+        -512
+      ],
+      "id": "72e9e029-e591-4d81-8a07-276f4a864c74",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## I Getting Telegram Chat ID\n### In this workflow, we should get the chat ID, thus we listen for any new messages.\n### Once, new message is recieved, we update the google sheet. \n### IF the user contacts the bot while his information is not store, we redirect him to the form.",
+        "height": 688,
+        "width": 1520
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -416,
+        -352
+      ],
+      "id": "53370f3c-957f-4528-a968-ce2bf8ab3673",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "##Main Trigger\n## Each period of time, we read users information,  we inject the keywords of interest in smeantic web apI, we get  relevant papers, and update the user via email, and telegram.",
+        "height": 480,
+        "width": 2048,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -976,
+        512
+      ],
+      "id": "10729989-04a8-4cc3-bee7-690d03b0a6f5",
+      "name": "Sticky Note2"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Search files and folders",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Form",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append or update row in sheet": {
+      "main": [
+        []
+      ]
+    },
+    "Search files and folders": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Create spreadsheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet1": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet": {
+      "main": [
+        []
+      ]
+    },
+    "Send a text message": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "0583016b-fb05-4820-97e3-a81d96117561",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f23da161c8b1a9e1093fd02049aea410afddbab546fc4d34eede4ded4157c4e4"
+  },
+  "id": "bG6kkncVsiuMpx3E",
+  "tags": []
+}

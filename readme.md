@@ -4,7 +4,7 @@ This project is an n8n workflow that collects user interests, derives search key
 
 ## Architecture
 
-![Automatic Research Update workflow](n8n.png)
+![Automatic Research Update workflow](n8n.PNG)
 
 The diagram (`n8n.PNG`) should illustrate the three main parts:
 

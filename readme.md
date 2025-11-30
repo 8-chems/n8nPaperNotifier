@@ -6,7 +6,7 @@ This project is an n8n workflow that collects user interests, derives search key
 
 ![Automatic Research Update workflow](n8n.png)
 
-The diagram (`n8n.png`) should illustrate the three main parts:
+The diagram (`n8n.PNG`) should illustrate the three main parts:
 
 - **Form flow**:  
   `On form submission → Groq Chat Model + Basic LLM Chain → Search files and folders / If / Create spreadsheet → Append or update row in sheet → Form (completion with Telegram link)`
